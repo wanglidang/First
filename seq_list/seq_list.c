@@ -33,33 +33,26 @@ bool is_empty(struct seq_list *s)
 }
 bool push(int n,struct seq_list *s)
 {
-	static i,j;
+	static int i,j;
 	if(is_full(s))
 	{
 		printf("seqlist is full.\n");
 		return false;
 	}
 	s->last++;
-	if(s->last ==0)
+	s->data[s->last] = n;                 //先将它放在最后面，然后往前比较大小，比直接插入中间要简单
+	for(i=s->last; i>0; i--)
 	{
-		s->data[s->last]=n;
-	}
-	else if(is_empty(s) ==false)
-	{
-		for(i=0;i<SIZE;i++)
+		if(s->data[i-1] > s->data[i])
 		{
-			if(n >= s->data[i])         //从小往大排
-			{
-				for(j=SIZE;j>i+2;j--)        
-				{
-					s->data[j]=s->data[j-1];
-				}
-				s->data[i+1] =n;
-			}	
+			j=s->data[i-1];
+			s->data[i-1]=s->data[i];
+			s->data[i]=j;
 		}
+		break;
 	}
 	printf("now the list is : ");
-	for(i=0;i<s->last;i++)
+	for(i=0;i<=s->last;i++)
 	{
 		printf("%d  ",s->data[i]);
 	}
@@ -75,21 +68,22 @@ bool delete(int m,struct seq_list *s)
 		printf("seqlist is empty,please input number.\n");
 		return false;
 	}
-	for(i=0;i <s->last;i++)
+	for(i=0;i <=s->last;i++)            //注意临界值
 	{
-		if(m == s->data[i])
+		if(m == s->data[i])      
 		{
-			s->last -= 1;
-			for(j=i+1;j<s->last;j++,i++)
+			
+			for(j=i+1;j<SIZE-1;j++,i++)
 			{
 				s->data[i]=s->data[j];	
 				f++;
 			}
-			i =i-f;
+			s->last -= 1;
+			break;
 		}		
 	}
 	printf("now the list is : ");
-	for(i=0;i<s->last;i++)
+	for(i=0;i<=s->last;i++)
 	{
 		printf("%d  ",s->data[i]);
 	}
@@ -109,8 +103,7 @@ int main(int argc,const char *argv[])
 		{
 			if(push(n,s)==false)
 			{
-				perror("push");
-				break;
+				printf("push error\n");
 			}
 		}
 		else if(n<0)
@@ -118,7 +111,7 @@ int main(int argc,const char *argv[])
 			m = -n;
 			if(delete(m,s)==false)
 			{
-				perror("delete");
+				printf("delete error\n");
 			}	
 		}
 		else if(n==0)
